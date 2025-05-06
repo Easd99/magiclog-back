@@ -27,7 +27,10 @@ export class UsersController {
 
   @Get()
   findAll(@Query() query: UserFilterDto) {
-    return this.usersService.findAll(query);
+    const { email } = query;
+    return this.usersService.findAll({
+      email: email,
+    });
   }
 
   @Get(':id')

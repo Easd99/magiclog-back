@@ -3,27 +3,29 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  OneToMany,
+  ManyToOne,
   PrimaryGeneratedColumn,
   Timestamp,
   UpdateDateColumn,
 } from 'typeorm';
-import { Product } from '../../products/entities/product.entity';
-import { Role } from '../enums/role.enum';
+import { User } from '../../users/entities/user.entity';
 
-@Entity('User')
-export class User {
+@Entity('Product')
+export class Product {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column('varchar', {})
-  email: string;
+  name: string;
 
   @Column('varchar', {})
-  password: string;
+  sku: string;
 
-  @Column({ type: 'enum', enum: Role, default: Role.USER })
-  role: string;
+  @Column('integer', {})
+  quantity: number;
+
+  @Column('float', {})
+  price: number;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -35,6 +37,6 @@ export class User {
   deletedAt: Timestamp;
 
   //relations
-  @OneToMany(() => Product, (x) => x.user)
-  products: Product[];
+  @ManyToOne(() => User, (x) => x.products, { onDelete: 'CASCADE' })
+  user: User;
 }

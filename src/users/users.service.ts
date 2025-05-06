@@ -19,7 +19,6 @@ export class UsersService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  //create
   async create(userCreateDto: UserCreateDto): Promise<UserResponseDto> {
     const { email, password, confirmPassword } = userCreateDto;
 
@@ -42,11 +41,11 @@ export class UsersService {
     const user = await this.userRepository.save({
       email: userCreateDto.email,
       password: hashedPassword,
+      role: userCreateDto.role,
     });
     return this.convertToResponseDto(user);
   }
 
-  //getAll
   async findAll(query: UserFilterDto): Promise<UserResponseDto[]> {
     const { email } = query;
 
@@ -60,10 +59,9 @@ export class UsersService {
       'user.id': 'ASC',
     });
     const users = await queryBuilder.getMany();
-    return users.map(this.convertToResponseDto);
+    return users.map((e) => this.convertToResponseDto(e, query.password));
   }
 
-  //getById
   async findById(id: number): Promise<UserResponseDto | undefined> {
     const user = await this.userRepository.findOne({
       where: { id },
@@ -76,7 +74,6 @@ export class UsersService {
     return this.convertToResponseDto(user);
   }
 
-  //update
   async update(
     id: number,
     userUpdateDto: UserUpdateDto,
@@ -110,7 +107,6 @@ export class UsersService {
     return this.convertToResponseDto(user);
   }
 
-  //delete
   async delete(id: number): Promise<void> {
     const user = await this.userRepository.findOne({
       where: { id },
@@ -127,8 +123,18 @@ export class UsersService {
     return await bcrypt.hash(password, saltOrRounds);
   }
 
-  private convertToResponseDto(user: User): UserResponseDto {
-    const { id, email, createdAt, updatedAt } = user;
-    return { id, email, createdAt, updatedAt };
+  private convertToResponseDto(
+    user: User,
+    password?: boolean,
+  ): UserResponseDto {
+    const { id, email, role, createdAt, updatedAt } = user;
+    if (password) {
+      return { id, email, password: user.password, role, createdAt, updatedAt };
+    }
+    return { id, email, role, createdAt, updatedAt };
+  }
+
+  async validatePassword(plainText: string, hashed: string) {
+    return bcrypt.compare(plainText, hashed);
   }
 }

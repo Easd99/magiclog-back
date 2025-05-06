@@ -4,6 +4,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { addTransactionalDataSource } from 'typeorm-transactional';
 import { DataSource } from 'typeorm';
 import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
+import { ProductsModule } from './products/products.module';
 import typeorm from './typeorm.config';
 
 @Module({
@@ -23,6 +25,8 @@ import typeorm from './typeorm.config';
       },
     }),
     UsersModule,
+    AuthModule,
+    ProductsModule,
   ],
   controllers: [],
   providers: [],
