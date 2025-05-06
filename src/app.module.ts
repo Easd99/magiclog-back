@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { addTransactionalDataSource } from 'typeorm-transactional';
 import { DataSource } from 'typeorm';
+import { UsersModule } from './users/users.module';
 import typeorm from './typeorm.config';
 
 @Module({
@@ -21,6 +22,7 @@ import typeorm from './typeorm.config';
         return addTransactionalDataSource(new DataSource(option));
       },
     }),
+    UsersModule,
   ],
   controllers: [],
   providers: [],

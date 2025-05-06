@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { initializeTransactionalContext } from 'typeorm-transactional';
+import * as process from 'node:process';
 
 async function bootstrap() {
   initializeTransactionalContext();
@@ -9,7 +10,7 @@ async function bootstrap() {
   app.enableCors();
   app.setGlobalPrefix('api/v1');
 
-  await app.listen(3000);
+  await app.listen(process.env.PORT || 5000);
 }
 
 bootstrap();
