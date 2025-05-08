@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { UserCreateDto } from './dto/user-create.dto';
 import { UserFilterDto } from './dto/user-filter.dto';
 import { UserResponseDto } from './dto/user-response.dto';
@@ -124,7 +124,7 @@ export class UsersService {
   }
 
   async hashPassword(password: string): Promise<string> {
-    const saltOrRounds = 10; // puedes ajustarlo según tus necesidades
+    const saltOrRounds = 10;
     return await bcrypt.hash(password, saltOrRounds);
   }
 
