@@ -8,16 +8,21 @@ import { ProductFilterDto } from './dto/product-filter.dto';
 import { ProductUpdateDto } from './dto/product-update.dto';
 import { User } from '../users/entities/user.entity';
 import { UserResponseDto } from '../users/dto/user-response.dto';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { Transactional } from 'typeorm-transactional';
 
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
+  @Transactional()
   async create(
     productCreateDto: ProductCreateDto,
+    image?: Express.Multer.File,
   ): Promise<ProductResponseDto> {
     const { name, sku, quantity, price } = productCreateDto;
 
@@ -29,12 +34,18 @@ export class ProductsService {
       throw new BadRequestException('product with this SKU already exists');
     }
 
+    let imageLoaded;
+    if (image) {
+      imageLoaded = await this.cloudinaryService.uploadImage(image);
+    }
+
     const product = await this.productRepository.save({
       name,
       sku,
       quantity,
       price,
       user: { id: productCreateDto.userId },
+      image: imageLoaded ? imageLoaded.public_id : undefined,
     });
 
     return this.convertToResponseDto(product);
@@ -63,11 +74,10 @@ export class ProductsService {
     queryBuilder.orderBy({
       'product.id': 'ASC',
     });
-    return queryBuilder
-      .getMany()
-      .then((products) =>
-        products.map((product) => this.convertToResponseDto(product)),
-      );
+    const products = await queryBuilder.getMany();
+    return await Promise.all(
+      products.map((product) => this.convertToResponseDto(product)),
+    );
   }
 
   async findById(id: number): Promise<ProductResponseDto | undefined> {
@@ -86,6 +96,7 @@ export class ProductsService {
     productUpdateDto: ProductUpdateDto,
     userId: number,
     role: string,
+    image?: Express.Multer.File,
   ): Promise<ProductResponseDto> {
     const { name, sku, quantity, price } = productUpdateDto;
 
@@ -110,7 +121,7 @@ export class ProductsService {
         })
       )[0];
 
-      if (existingProductWithSku && existingProductWithSku[0].id !== id) {
+      if (existingProductWithSku && existingProductWithSku.id !== id) {
         throw new Error('product with this SKU already exists');
       }
       existingProduct.sku = sku;
@@ -123,6 +134,10 @@ export class ProductsService {
     }
     if (price) {
       existingProduct.price = price;
+    }
+    if (image) {
+      const imageLoaded = await this.cloudinaryService.uploadImage(image);
+      existingProduct.image = imageLoaded.public_id;
     }
     const updatedProduct = await this.productRepository.save({
       ...existingProduct,
@@ -151,9 +166,20 @@ export class ProductsService {
     await this.productRepository.softRemove(product);
   }
 
-  private convertToResponseDto(product: Product): ProductResponseDto {
-    const { id, name, sku, quantity, user, price, createdAt, updatedAt } =
-      product;
+  private async convertToResponseDto(
+    product: Product,
+  ): Promise<ProductResponseDto> {
+    const {
+      id,
+      name,
+      sku,
+      quantity,
+      user,
+      price,
+      image,
+      createdAt,
+      updatedAt,
+    } = product;
     return {
       id,
       name,
@@ -161,13 +187,17 @@ export class ProductsService {
       quantity,
       price,
       user: user ? this.mapUserToResponseDto(user) : undefined,
+      image: image,
+      imageURL: product.image
+        ? await this.cloudinaryService.getImageUrl(product.image)
+        : undefined,
       createdAt,
       updatedAt,
     };
   }
 
   private mapUserToResponseDto(user: User): UserResponseDto {
-    const { id, email, role, createdAt, updatedAt } = user;
-    return { id, email, role, createdAt, updatedAt };
+    const { id, name, email, role, createdAt, updatedAt } = user;
+    return { id, name, email, role, createdAt, updatedAt };
   }
 }

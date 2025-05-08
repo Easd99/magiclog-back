@@ -6,7 +6,7 @@ import { DataSource } from 'typeorm';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ProductsModule } from './products/products.module';
-import typeorm from './typeorm.config';
+import typeorm from './config/typeorm.config';
 
 @Module({
   imports: [

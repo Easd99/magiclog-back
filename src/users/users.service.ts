@@ -39,6 +39,7 @@ export class UsersService {
     const hashedPassword = await this.hashPassword(userCreateDto.password);
 
     const user = await this.userRepository.save({
+      name: userCreateDto.name,
       email: userCreateDto.email,
       password: hashedPassword,
       role: userCreateDto.role,
@@ -85,6 +86,10 @@ export class UsersService {
       throw new NotFoundException('user not found');
     }
 
+    if (userUpdateDto.name) {
+      user.name = userUpdateDto.name;
+    }
+
     if (userUpdateDto.email) {
       const existingUser = await this.findAll({
         email: userUpdateDto.email,
@@ -127,11 +132,19 @@ export class UsersService {
     user: User,
     password?: boolean,
   ): UserResponseDto {
-    const { id, email, role, createdAt, updatedAt } = user;
+    const { id, name, email, role, createdAt, updatedAt } = user;
     if (password) {
-      return { id, email, password: user.password, role, createdAt, updatedAt };
+      return {
+        id,
+        name,
+        email,
+        password: user.password,
+        role,
+        createdAt,
+        updatedAt,
+      };
     }
-    return { id, email, role, createdAt, updatedAt };
+    return { id, name, email, role, createdAt, updatedAt };
   }
 
   async validatePassword(plainText: string, hashed: string) {

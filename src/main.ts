@@ -6,9 +6,14 @@ import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   initializeTransactionalContext();
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { cors: true });
 
-  app.enableCors();
+  app.enableCors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  });
+
   app.setGlobalPrefix('api/v1');
 
   app.useGlobalPipes(
@@ -18,6 +23,8 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
+  console.log(process.env.CLOUD_NAME);
 
   await app.listen(process.env.PORT || 5000);
 }

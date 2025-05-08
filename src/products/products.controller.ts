@@ -10,7 +10,9 @@ import {
   Post,
   Query,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ProductsService } from './products.service';
@@ -21,6 +23,8 @@ import { Request } from 'express';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { Role } from '../users/enums/role.enum';
+import * as multer from 'multer';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('products')
 export class ProductsController {
@@ -30,12 +34,21 @@ export class ProductsController {
   @Roles(Role.ADMIN, Role.SELLER)
   @Post()
   @HttpCode(201)
-  create(@Body() productCreateDto: ProductCreateDto, @Req() req: Request) {
-    console.log(req.user);
-    return this.productsService.create({
-      ...productCreateDto,
-      userId: req.user['userId'],
-    });
+  @UseInterceptors(
+    FileInterceptor('image', { storage: multer.memoryStorage() }),
+  )
+  create(
+    @UploadedFile() image: Express.Multer.File,
+    @Body() productCreateDto: ProductCreateDto,
+    @Req() req: Request,
+  ) {
+    return this.productsService.create(
+      {
+        ...productCreateDto,
+        userId: req.user['userId'],
+      },
+      image,
+    );
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -96,7 +109,11 @@ export class ProductsController {
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.ADMIN, Role.SELLER)
   @Patch(':id')
+  @UseInterceptors(
+    FileInterceptor('image', { storage: multer.memoryStorage() }),
+  )
   async update(
+    @UploadedFile() image: Express.Multer.File,
     @Param('id') id: number,
     @Body() productUpdateDto: ProductUpdateDto,
     @Req() req: Request,
@@ -108,6 +125,7 @@ export class ProductsController {
       },
       req.user['userId'],
       req.user['role'],
+      image,
     );
   }
 

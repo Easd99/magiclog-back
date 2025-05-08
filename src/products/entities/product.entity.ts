@@ -27,6 +27,9 @@ export class Product {
   @Column('float', {})
   price: number;
 
+  @Column('varchar', { nullable: true, default: '' })
+  image: string;
+
   @CreateDateColumn()
   createdAt: Date;
 

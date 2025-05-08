@@ -4,6 +4,10 @@ import { Role } from '../enums/role.enum';
 export class UserUpdateDto {
   @IsOptional()
   @IsString()
+  name?: string;
+
+  @IsOptional()
+  @IsString()
   email?: string;
 
   @IsOptional()

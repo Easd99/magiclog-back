@@ -7,6 +7,8 @@ export class ProductResponseDto {
   quantity: number;
   price: number;
   user?: UserResponseDto;
+  image?: string;
+  imageURL?: string;
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date;
