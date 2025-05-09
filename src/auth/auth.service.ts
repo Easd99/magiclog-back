@@ -19,7 +19,7 @@ export class AuthService {
       })
     )[0];
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('invalid credentials');
     }
     if (
       user &&
@@ -34,7 +34,7 @@ export class AuthService {
   async login(body: AuthLoginDto) {
     const user = await this.validateUser(body.email, body.password);
 
-    if (!user) throw new UnauthorizedException('Invalid credentials');
+    if (!user) throw new UnauthorizedException('invalid credentials');
     const payload = {
       name: user.name,
       username: user.email,

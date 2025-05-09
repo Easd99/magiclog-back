@@ -51,7 +51,7 @@ export class ProductsController {
     );
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  //@UseGuards(AuthGuard('jwt'))
   @Get()
   findAll(@Query() query: ProductFilterDto) {
     const filter: ProductFilterDto = {
@@ -101,7 +101,7 @@ export class ProductsController {
   async findById(@Param('id') id: number) {
     const product = await this.productsService.findById(id);
     if (!product) {
-      throw new NotFoundException('Product not found');
+      throw new NotFoundException('product not found');
     }
     return product;
   }
