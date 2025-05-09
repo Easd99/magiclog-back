@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
@@ -103,7 +107,7 @@ export class ProductsService {
     const existingProduct = await this.findById(id);
 
     if (!existingProduct) {
-      throw new Error('product not found');
+      throw new NotFoundException('product not found');
     }
 
     if (role !== 'admin') {
@@ -122,7 +126,7 @@ export class ProductsService {
       )[0];
 
       if (existingProductWithSku && existingProductWithSku.id !== id) {
-        throw new Error('product with this SKU already exists');
+        throw new BadRequestException('product with this SKU already exists');
       }
       existingProduct.sku = sku;
     }
@@ -152,7 +156,7 @@ export class ProductsService {
       relations: ['user'],
     });
     if (!product) {
-      throw new Error('product not found');
+      throw new NotFoundException('product not found');
     }
 
     if (role !== 'admin') {

@@ -24,8 +24,6 @@ async function bootstrap() {
     }),
   );
 
-  console.log(process.env.CLOUD_NAME);
-
   await app.listen(process.env.PORT || 5000);
 }
 
