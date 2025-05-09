@@ -1,8 +1,9 @@
 # MagicLogBack
 
 Backend basado en un CRUD sencillo de usuarios y productos, con autenticación usando JWT.
-Documentacion: https://documenter.getpostman.com/view/24702282/2sB2j988zs
 
+---
+Documentacion: https://documenter.getpostman.com/view/24702282/2sB2j988zs
 ---
 
 ## 🚀 Cómo iniciar el proyecto
